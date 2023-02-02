@@ -1,0 +1,10 @@
+{
+  "name": "kafka-example",
+  "version": "1.0.0",
+  "author": "Calil Amaral",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "node-rdkafka": "^2.15.0"
+  }
+}
