@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import {
   Consumer,
   ConsumerRunConfig,
@@ -9,7 +9,7 @@ import {
 type Unpacked<T> = T extends (infer U)[] ? U : T;
 
 @Injectable()
-export class ConsumerService {
+export class ConsumerService implements OnApplicationShutdown {
   private readonly kafka = new Kafka({
     brokers: ['localhost:9092'],
   });
@@ -18,7 +18,7 @@ export class ConsumerService {
   async consume(
     topic: {
       topic: Unpacked<ConsumerSubscribeTopics['topics']>;
-      fromBeginning: boolean;
+      fromBeginning?: boolean;
     },
     config: ConsumerRunConfig,
   ) {
@@ -27,5 +27,11 @@ export class ConsumerService {
     await consumer.subscribe(topic);
     await consumer.run(config);
     this.consumers.push(consumer);
+  }
+
+  async onApplicationShutdown() {
+    for (const consumer of this.consumers) {
+      await consumer.disconnect();
+    }
   }
 }
